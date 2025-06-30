@@ -4,9 +4,7 @@
 
 [![AWS](https://img.shields.io/badge/AWS-S3%20%7C%20Lambda%20%7C%20DynamoDB-orange?style=flat-square&logo=amazon-aws)](https://aws.amazon.com/)
 [![Alexa](https://img.shields.io/badge/Alexa-Skills%20Kit-00CAFF?style=flat-square&logo=amazon-alexa)](https://developer.amazon.com/alexa)
-[![Node.js](https://img.shields.io/badge/Node.js-Backend-green?style=flat-square&logo=node.js)](https://nodejs.org/)
 [![Python](https://img.shields.io/badge/Python-Lambda-blue?style=flat-square&logo=python)](https://python.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
 **An intelligent voice-controlled S3 bucket management system that combines Alexa Skills, AWS Lambda, and a local backend for seamless file operations and cost optimization.**
 
@@ -439,12 +437,6 @@ We welcome contributions! Please follow these steps:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
----
-
-## 📝 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
