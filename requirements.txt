@@ -1,0 +1,2 @@
+ask-sdk-core>=1.16.1 
+ask-sdk-model==1.36.0
