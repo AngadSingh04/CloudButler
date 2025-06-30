@@ -19,7 +19,7 @@ CloudButler is a comprehensive cloud storage solution that lets you manage your 
 ## 🏗️ **System Architecture**
 
 ```
-![Architecture Image](./images/architecture.png)
+![Architecture Image](./images/architecture_lambda.png)
 ```
 
 ---
