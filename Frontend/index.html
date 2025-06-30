@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Assistant Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .activity-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .activity-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            background: rgba(52, 152, 219, 0.05);
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(52, 152, 219, 0.1);
+            transform: translateX(5px);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-intent {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .activity-details {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            text-align: right;
+        }
+
+        .user-insights {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .insights-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .user-stats {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.3s ease;
+        }
+
+        .s3-section {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .s3-overview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .s3-details-container {
+            margin-top: 20px;
+        }
+
+        .bucket-list {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .bucket-header {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .bucket-item {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: background 0.3s ease;
+        }
+
+        .bucket-item:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .bucket-item:last-child {
+            border-bottom: none;
+        }
+
+        .bucket-name {
+            font-weight: 600;
+            color: #2980b9;
+        }
+
+        .bucket-created, .bucket-objects {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .bucket-loading {
+            padding: 20px;
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .empty-bucket-message {
+            padding: 30px;
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-insights {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .bucket-header, .bucket-item {
+                grid-template-columns: 1.5fr 1fr 0.8fr;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 Virtual Assistant Dashboard</h1>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>System Online • Last Updated: <span id="lastUpdate">Never</span></span>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalRequests">0</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeUsers">0</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalFriends">0</div>
+                <div class="stat-label">Friends Added</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgResponseTime">0ms</div>
+                <div class="stat-label">Avg Response Time</div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">📊 Requests Over Time</div>
+                <canvas id="requestsChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">🎯 Popular Intents</div>
+                <canvas id="intentsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="activity-section">
+            <div class="activity-header">
+                <div class="activity-title">🔄 Recent Activity</div>
+                <button class="refresh-btn" onclick="refreshData()">Refresh</button>
+            </div>
+            <div class="activity-list" id="activityList">
+                
+            </div>
+        </div>
+
+        <div class="user-insights">
+            <div class="insights-card">
+                <div class="chart-title">👥 Top Users</div>
+                <div id="topUsers">
+                    
+                </div>
+            </div>
+            <div class="insights-card">
+                <div class="chart-title">📈 System Health</div>
+                <div style="margin-bottom: 20px;">
+                    <div style="margin-bottom: 10px;">
+                        <span style="font-weight: 600;">CPU Usage</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <span style="font-weight: 600;">Memory Usage</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <span style="font-weight: 600;">API Response Rate</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 95%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="s3-section">
+            <div class="section-header">
+                <div class="section-title">🪣 S3 Bucket Management</div>
+            </div>
+            
+            <div class="s3-overview">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalBuckets">0</div>
+                    <div class="stat-label">Total Buckets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalObjects">0</div>
+                    <div class="stat-label">Total Objects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalStorage">0 KB</div>
+                    <div class="stat-label">Storage Used</div>
+                </div>
+            </div>
+            
+            <div class="s3-details-container">
+                <div class="insights-card">
+                    <div class="chart-title">Bucket Details</div>
+                    <div class="bucket-list" id="bucketList">
+                        <div class="bucket-header">
+                            <div class="bucket-name-header">Bucket Name</div>
+                            <div class="bucket-created-header">Created</div>
+                            <div class="bucket-objects-header">Objects</div>
+                        </div>
+                        <div class="bucket-loading">Loading bucket data...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        const API_BASE_URL = 'http://localhost:5001/api/dashboard';
+        
+        
+        let dashboardData = {
+            totalRequests: 0,
+            activeUsers: 0,
+            totalFriends: 0,
+            avgResponseTime: 0,
+            recentActivity: [],
+            requestsOverTime: [],
+            intentDistribution: {},
+            topUsers: [],
+            s3Insights: {
+                total_buckets: 0,
+                total_objects: 0,
+                total_size: 0,
+                buckets: []
+            }
+        };
+
+        // API Functions
+        async function fetchDashboardData() {
+            try {
+                showLoading(true);
+                console.log('Fetching dashboard data...');
+                
+                const response = await fetch(`${API_BASE_URL}/all`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Received data:', data);
+                
+                
+                dashboardData = {
+                    totalRequests: data.stats.totalRequests || 0,
+                    activeUsers: data.stats.activeUsers || 0,
+                    totalFriends: data.stats.totalFriends || 0,
+                    avgResponseTime: data.stats.avgResponseTime || 0,
+                    recentActivity: data.recentActivity || [],
+                    requestsOverTime: data.chartData.requestsOverTime || [],
+                    intentDistribution: data.chartData.intentDistribution || {},
+                    topUsers: data.userInsights.topUsers || [],
+                    s3Insights: data.s3Insights || {
+                        total_buckets: 0,
+                        total_objects: 0,
+                        total_size: 0,
+                        buckets: []
+                    }
+                };
+                
+                updateAllComponents();
+                showLoading(false);
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                showLoading(false);
+                showError(`Failed to fetch data: ${error.message}`);
+                
+                
+                if (dashboardData.totalRequests === 0) {
+                    loadMockData();
+                }
+            }
+        }
+
+        function loadMockData() {
+            console.log('Loading mock data as fallback...');
+            dashboardData = {
+                totalRequests: 1247,
+                activeUsers: 23,
+                totalFriends: 156,
+                avgResponseTime: 245,
+                recentActivity: [
+                    { intent: 'HelloWorldIntent', user: '123', timestamp: new Date().toISOString(), details: 'Greeting interaction' },
+                    { intent: 'AddFriendIntent', user: '456', timestamp: new Date(Date.now() - 120000).toISOString(), details: 'Added friend: Sarah' },
+                    { intent: 'FriendsName', user: '789', timestamp: new Date(Date.now() - 300000).toISOString(), details: 'Requested friends list' }
+                ],
+                requestsOverTime: [
+                    { time: '00:00', requests: 12 },
+                    { time: '08:00', requests: 45 },
+                    { time: '16:00', requests: 92 }
+                ],
+                intentDistribution: {
+                    'HelloWorldIntent': 35,
+                    'AddFriendIntent': 25,
+                    'FriendsName': 20
+                },
+                topUsers: [
+                    { name: 'Angad', interactions: 45, friends: 8 },
+                    { name: 'User-456', interactions: 32, friends: 5 }
+                ],
+                s3Insights: {
+                    total_buckets: 3,
+                    total_objects: 28,
+                    total_size: 1024000,
+                    buckets: [
+                        { name: 'virtual-assistant-assets', created_date: '2023-04-15T08:30:00', object_count: 15 },
+                        { name: 'user-profile-pics', created_date: '2023-05-20T09:45:00', object_count: 8 },
+                        { name: 'app-backups', created_date: '2023-06-10T14:20:00', object_count: 5 }
+                    ]
+                }
+            };
+            updateAllComponents();
+        }
+
+        function showLoading(show) {
+            const statusDot = document.querySelector('.status-dot');
+            if (show) {
+                statusDot.style.background = '#f39c12';
+                statusDot.style.animation = 'pulse 0.5s infinite';
+            } else {
+                statusDot.style.background = '#27ae60';
+                statusDot.style.animation = 'pulse 2s infinite';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #e74c3c;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 1000;
+                max-width: 400px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            errorDiv.innerHTML = `
+                <strong>⚠️ Connection Error</strong><br>
+                ${message}<br>
+                <small>Using cached/mock data instead</small>
+            `;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 5000);
+        }
+
+        function updateAllComponents() {
+            updateStats();
+            updateActivity();
+            updateTopUsers();
+            updateCharts();
+            updateS3Data();
+        }
+
+        
+        let requestsChart, intentsChart;
+
+        function initializeCharts() {
+            
+            const requestsCtx = document.getElementById('requestsChart').getContext('2d');
+            requestsChart = new Chart(requestsCtx, {
+                type: 'line',
+                data: {
+                    labels: dashboardData.requestsOverTime.map(d => d.time),
+                    datasets: [{
+                        label: 'Requests',
+                        data: dashboardData.requestsOverTime.map(d => d.requests),
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            
+            const intentsCtx = document.getElementById('intentsChart').getContext('2d');
+            intentsChart = new Chart(intentsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(dashboardData.intentDistribution),
+                    datasets: [{
+                        data: Object.values(dashboardData.intentDistribution),
+                        backgroundColor: [
+                            '#3498db',
+                            '#e74c3c',
+                            '#f39c12',
+                            '#27ae60',
+                            '#9b59b6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('totalRequests').textContent = dashboardData.totalRequests.toLocaleString();
+            document.getElementById('activeUsers').textContent = dashboardData.activeUsers;
+            document.getElementById('totalFriends').textContent = dashboardData.totalFriends;
+            document.getElementById('avgResponseTime').textContent = dashboardData.avgResponseTime + 'ms';
+        }
+
+        function updateActivity() {
+            const activityList = document.getElementById('activityList');
+            activityList.innerHTML = '';
+            
+            if (dashboardData.recentActivity.length === 0) {
+                activityList.innerHTML = '<div style="text-align: center; color: #7f8c8d; padding: 20px;">No recent activity</div>';
+                return;
+            }
+            
+            dashboardData.recentActivity.forEach(activity => {
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                
+                
+                let timestamp = activity.timestamp;
+                if (typeof timestamp === 'string') {
+                    timestamp = new Date(timestamp);
+                }
+                
+                item.innerHTML = `
+                    <div class="activity-content">
+                        <div class="activity-intent">${activity.intent}</div>
+                        <div class="activity-details">${activity.details}</div>
+                    </div>
+                    <div class="activity-time">${formatTime(timestamp)}</div>
+                `;
+                activityList.appendChild(item);
+            });
+        }
+
+        function updateTopUsers() {
+            const topUsersContainer = document.getElementById('topUsers');
+            topUsersContainer.innerHTML = '';
+            
+            dashboardData.topUsers.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <div>
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-stats">${user.friends} friends</div>
+                    </div>
+                    <div class="user-stats">${user.interactions} interactions</div>
+                `;
+                topUsersContainer.appendChild(userItem);
+            });
+        }
+
+        function updateS3Data() {
+            
+            document.getElementById('totalBuckets').textContent = dashboardData.s3Insights.total_buckets;
+            document.getElementById('totalObjects').textContent = dashboardData.s3Insights.total_objects;
+            
+            
+            const sizeInKB = dashboardData.s3Insights.total_size / 1024;
+            let sizeDisplay;
+            
+            if (sizeInKB < 1) {
+                sizeDisplay = `${dashboardData.s3Insights.total_size} B`;
+            } else if (sizeInKB < 1024) {
+                sizeDisplay = `${Math.round(sizeInKB)} KB`;
+            } else if (sizeInKB < 1048576) {
+                sizeDisplay = `${Math.round(sizeInKB / 1024)} MB`;
+            } else {
+                sizeDisplay = `${Math.round(sizeInKB / 1048576)} GB`;
+            }
+            
+            document.getElementById('totalStorage').textContent = sizeDisplay;
+            
+            
+            const bucketList = document.getElementById('bucketList');
+            
+            
+            while (bucketList.childNodes.length > 1) {
+                if (bucketList.lastChild.className !== 'bucket-header') {
+                    bucketList.removeChild(bucketList.lastChild);
+                } else {
+                    break;
+                }
+            }
+            
+            
+            if (!dashboardData.s3Insights.buckets || dashboardData.s3Insights.buckets.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'empty-bucket-message';
+                emptyMessage.textContent = 'No S3 buckets found';
+                bucketList.appendChild(emptyMessage);
+                return;
+            }
+            
+            
+            if (bucketList.children.length === 0) {
+                const header = document.createElement('div');
+                header.className = 'bucket-header';
+                header.innerHTML = `
+                    <div class="bucket-name-header">Bucket Name</div>
+                    <div class="bucket-created-header">Created</div>
+                    <div class="bucket-objects-header">Objects</div>
+                `;
+                bucketList.appendChild(header);
+            }
+            
+            
+            dashboardData.s3Insights.buckets.forEach(bucket => {
+                const item = document.createElement('div');
+                item.className = 'bucket-item';
+                
+                
+                let dateDisplay = 'Unknown';
+                if (bucket.created_date) {
+                    const date = new Date(bucket.created_date);
+                    dateDisplay = date.toLocaleDateString();
+                }
+                
+                item.innerHTML = `
+                    <div class="bucket-name">${bucket.name}</div>
+                    <div class="bucket-created">${dateDisplay}</div>
+                    <div class="bucket-objects">${bucket.object_count} objects</div>
+                `;
+                bucketList.appendChild(item);
+            });
+        }
+
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        function updateCharts() {
+            
+            if (requestsChart && dashboardData.requestsOverTime.length > 0) {
+                requestsChart.data.labels = dashboardData.requestsOverTime.map(d => d.time);
+                requestsChart.data.datasets[0].data = dashboardData.requestsOverTime.map(d => d.requests);
+                requestsChart.update();
+            }
+
+            
+            if (intentsChart && Object.keys(dashboardData.intentDistribution).length > 0) {
+                intentsChart.data.labels = Object.keys(dashboardData.intentDistribution);
+                intentsChart.data.datasets[0].data = Object.values(dashboardData.intentDistribution);
+                intentsChart.update();
+            }
+        }
+
+        function refreshData() {
+            fetchDashboardData();
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard initializing...');
+            initializeCharts();
+            
+            
+            fetchDashboardData();
+            
+            setInterval(fetchDashboardData, 30000);
+            
+            
+            window.addEventListener('online', () => {
+                console.log('Connection restored');
+                fetchDashboardData();
+            });
+            
+            window.addEventListener('offline', () => {
+                console.log('Connection lost');
+                showError('Connection lost - showing cached data');
+            });
+        });
+    </script>
+</body>
+</html>
