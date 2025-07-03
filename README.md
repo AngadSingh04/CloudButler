@@ -131,6 +131,13 @@ aws dynamodb create-table \
     --attribute-definitions AttributeName=request_id,AttributeType=S \
     --key-schema AttributeName=request_id,KeyType=HASH \
     --billing-mode PAY_PER_REQUEST
+
+# File Download Request Table
+aws dynamodb create-table \
+    --table-name VirtualAssistant-FileDownloadRequest \
+    --attribute-definitions AttributeName=request_id,AttributeType=S AttributeName=timestamp,AttributeType=S \
+    --key-schema AttributeName=request_id,KeyType=HASH AttributeName=timestamp,KeyType=RANGE \
+    --billing-mode PAY_PER_REQUEST
 ```
 
 ### 4. Set Up Alexa Skill
