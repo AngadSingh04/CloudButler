@@ -447,12 +447,6 @@ We welcome contributions! Please follow these steps:
 
 ---
 
-## 🙏 **Acknowledgments**
-
-- Amazon Alexa Skills Kit for voice interaction capabilities
-- AWS Lambda for serverless computing
-- AWS S3 for reliable cloud storage
-- DynamoDB for fast, scalable database operations
 
 ---
 
